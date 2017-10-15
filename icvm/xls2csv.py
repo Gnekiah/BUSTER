@@ -51,7 +51,7 @@ def save_csv(sheet_name, sheet_cont, path):
     print "save sheet: %s as %s" % (sheet_name, path)
 
 
-def main(path):
+def xls2csv(path):
     xlsd = load_xls(path)
     save = path[:-4] if path[-4:] == ".xls" else path[:-5]
     cnt = 0
@@ -68,4 +68,4 @@ if __name__ == "__main__":
     if len(sys.argv) != 2:
         print "invalid parameter"
         exit()
-    main(sys.argv[1])
+    xls2csv(sys.argv[1])

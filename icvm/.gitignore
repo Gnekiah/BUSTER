@@ -1,0 +1,7 @@
+test.py
+*.data
+*.csv
+*.xls[x]
+*.pyc
+*.result
+icvm-result.txt
