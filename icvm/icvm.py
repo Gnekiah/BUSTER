@@ -8,7 +8,7 @@
 # @Xiong X. 2017/10/15
 
 from traceback import extract_stack
-import math, sys
+import math, sys, time, os
 
 ################################################################################
 INFOR = True
@@ -540,7 +540,7 @@ def __do_stdev():
     ret = 0.0
     for item in clcenter:
         mean = vector_add(mean, item)
-    for i in range(0, nr_clusters):
+    for i in range(0, nr_dsattrs):
         mean[i] /= nr_clusters
     for item in clcenter:
         tmp = vector_sub(item, mean)
@@ -604,7 +604,9 @@ def do_sdbw(clusters):
 
 
 ## make Internal Clustering Validation Measures
-def icvm(clusters):
+## if want to save result onto a certain path, set rstpath
+def icvm(clusters, rstpath=None):
+    global nr_clusters
     do_init(clusters)
     icv_rmsstd  = do_rmsstd(clusters)
     icv_rs      = do_rs(clusters)
@@ -629,6 +631,26 @@ def icvm(clusters):
     infor("xb       = %f" % icv_xb)
     infor("sd       = %f" % icv_sd)
     infor("sdbw     = %f" % icv_sdbw)
+
+    now = time.time()
+    result_rpt = "icvm-%s.csv" % str(now) if rstpath == None else rstpath
+    exist_flag = True if os.path.isfile(result_rpt) else False
+    with open(result_rpt, "at") as f:
+        if not exist_flag:
+            f.write("NC,RMSSTD,RS,GAMMA,CH,I,D,S,DB,XB,SD,SDBW\n")
+        f.write(str(nr_clusters) + ",")
+        f.write(str(icv_rmsstd) + ",")
+        f.write(str(icv_rs) + ",")
+        f.write(str(icv_gamma) + ",")
+        f.write(str(icv_ch) + ",")
+        f.write(str(icv_i) + ",")
+        f.write(str(icv_d) + ",")
+        f.write(str(icv_s) + ",")
+        f.write(str(icv_db) + ",")
+        f.write(str(icv_xb) + ",")
+        f.write(str(icv_sd) + ",")
+        f.write(str(icv_sdbw) + "\n")
+    infor("Completed! Report File is %s" % result_rpt)
 
 
 ## if col. 0 is not id, set noid=True
