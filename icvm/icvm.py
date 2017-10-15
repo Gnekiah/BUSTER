@@ -1,22 +1,29 @@
 #! /bin/python2.7
+# -*- coding: utf-8 -*-
+#
+# implementation of eleven internal clustering validation measures
+# paper - "Understanding of Internal Clustering Validation Measures"
+#
+# environment: python 2.7 is recommended
+# @Xiong X. 2017/10/15
 
 from traceback import extract_stack
-import math
+import math, sys
 
 ################################################################################
 INFOR = True
-DEBUG = True
 ERROR = True
+DEBUG = False
 
-global nr_clusters
-global nr_dsobjs
-global nr_dsattrs
-global dscenter
-global dsdx
+global nr_clusters      ## number of clusters
+global nr_dsobjs        ## number of objects in dataset
+global nr_dsattrs       ## number of attributes in dataset
+global dscenter         ## center of dataset
+global dsdx             ## vector variance of dataset
 
-global nr_clobjs
-global clcenter
-global cldx
+global nr_clobjs        ## number of objects of each cluster
+global clcenter         ## center of each cluster
+global cldx             ## vector variance of each cluster
 ################################################################################
 def infor(info):
     es = extract_stack()
@@ -54,7 +61,7 @@ def vector_add(x, y):
     size = len(x)
     ret = []
     if size == 0 or len(y) != size:
-        error("vectors x and y are mismatch.")
+        error("vectors x:%d and y:%d are mismatch." % (len(x), len(y)))
     for i in range(0, size):
         ret.append(x[i]+y[i])
     return ret
@@ -175,7 +182,7 @@ def _calc_cldx(cluster, center):
         tmp = vector_sub(item, center)
         cldx = vector_add(cldx, scalar_square(tmp))
     for i in range(0, nr_dsattrs):
-        cldx[i] /=nr
+        cldx[i] /= nr
     return cldx
 
 
@@ -192,6 +199,7 @@ def calc_cldx(clusters):
     return cldx
 
 ################################################################################
+## functional patchs
 def do_init(clusters):
     global nr_clusters
     global nr_dsobjs
@@ -219,6 +227,7 @@ def do_init(clusters):
     debug("cl dx= %s" % cldx)
 
 
+## Root-mean-square std dev
 def do_rmsstd(clusters):
     global nr_clobjs
     global nr_dsattrs
@@ -242,6 +251,7 @@ def do_rmsstd(clusters):
     return ret
 
 
+## R-squared
 def do_rs(clusters):
     global clcenter
     global nr_clobjs
@@ -273,6 +283,7 @@ def _do_gamma(cl1, cl2, center1, center2):
     return ret
 
 
+## Modified Hubert Γ statistic
 def do_gamma(clusters):
     global clcenter
     global nr_clusters
@@ -288,6 +299,7 @@ def do_gamma(clusters):
     return ret
 
 
+## Calinski-Harabasz index
 def do_ch(clusters):
     global nr_clusters
     global nr_dsobjs
@@ -318,6 +330,7 @@ def do_ch(clusters):
     return ret
 
 
+## I index
 def do_i(clusters):
     global nr_clusters
     global clcenter
@@ -355,6 +368,7 @@ def _do_d(cl1, cl2, domin):
     return ret
 
 
+## Dunn’s indices
 def do_d(clusters):
     global nr_clusters
     maxdis = 0.0
@@ -405,6 +419,7 @@ def _do_s(cl, cnt, cls):
     return ret
 
 
+## Silhouette index
 def do_s(clusters):
     global nr_clusters
     ret = 0.0
@@ -421,19 +436,23 @@ def do_s(clusters):
 def _do_db(cl1, cl2, i, j):
     global nr_clobjs
     global clcenter
-    ret = 0.0
     xi = 0.0
     xj = 0.0
+    ret = 0.0
     for item in cl1:
         xi += scalar_distance(item, clcenter[i])
     xi /= nr_clobjs[i]
     for item in cl2:
         xj += scalar_distance(item, clcenter[j])
     xj /= nr_clobjs[j]
-    ret = (xi + xj) / scalar_distance(clcenter[i], clcenter[j])
+    xk = scalar_distance(clcenter[i], clcenter[j])
+    if xk == 0.0:
+        return ret
+    ret = (xi + xj) / xk
     return ret
 
 
+## Davies-Bouldin index
 def do_db(clusters):
     global nr_clusters
     ret = 0.0
@@ -463,6 +482,7 @@ def _do_xb(cl1, cl2):
     return ret
 
 
+## Xie-Beni index
 def do_xb(clusters):
     global nr_dsobjs
     global clcenter
@@ -511,23 +531,79 @@ def __do_scat():
     return ret
 
 
-def __do_densbw():
+def __do_stdev():
+    global nr_dsattrs
+    global nr_clusters
+    global clcenter
+    mean = [0.0] * nr_dsattrs
+    dx = [0.0] * nr_dsattrs
     ret = 0.0
-
+    for item in clcenter:
+        mean = vector_add(mean, item)
+    for i in range(0, nr_clusters):
+        mean[i] /= nr_clusters
+    for item in clcenter:
+        tmp = vector_sub(item, mean)
+        dx = vector_add(dx, scalar_square(tmp))
+    ret = math.sqrt(dot_product(dx)) / nr_clusters
     return ret
 
 
+def __do_uij(cluster):
+    global nr_dsattrs
+    nc = len(cluster)
+    if nc == 0:
+        error("calc uij failed, cluster cannot be empty.")
+    uij = [0.0] * nr_dsattrs
+    for item in cluster:
+        uij = vector_add(uij, item)
+    for i in range(0, nr_dsattrs):
+        uij[i] /= nc
+    return uij
+
+
+def __do_density(cluster, center, stdev):
+    ret = 0.0
+    sigma = 0.0
+    for item in cluster:
+        dis = scalar_distance(item, center)
+        sigma += 0 if dis > stdev else 1
+    return sigma
+
+
+def __do_densbw(clusters):
+    global clcenter
+    global nr_clusters
+    ret = 0.0
+    stdev = __do_stdev()
+    for i in range(0, nr_clusters):
+        for j in range(i+1, nr_clusters):
+            uij = clusters[i] + clusters[j]
+            molec = __do_density(uij, __do_uij(uij), stdev)
+            denomi = __do_density(clusters[i],clcenter[i],stdev)
+            denomj = __do_density(clusters[j],clcenter[j],stdev)
+            denom = max(denomi, denomj)
+            if denom == 0.0:
+                error("calc densbw failed, denominator cannot be zero.")
+            ret += molec / denom
+    ret /= (nr_clusters * (nr_clusters - 1))
+    return ret
+
+
+## SD validity index
 def do_sd(clusters):
     dis = __do_dis()
     ret = dis * __do_scat() + dis
     return ret
 
 
+## S Dbw validity index
 def do_sdbw(clusters):
-    ret = __do_scat() + __do_densbw()
+    ret = __do_scat() + __do_densbw(clusters)
     return ret
 
 
+## make Internal Clustering Validation Measures
 def icvm(clusters):
     do_init(clusters)
     icv_rmsstd  = do_rmsstd(clusters)
@@ -542,21 +618,52 @@ def icvm(clusters):
     icv_sd      = do_sd(clusters)
     icv_sdbw    = do_sdbw(clusters)
 
-    debug("rmsstd   = %f" % icv_rmsstd)
-    debug("rs       = %f" % icv_rs)
-    debug("gamma    = %f" % icv_gamma)
-    debug("ch       = %f" % icv_ch)
-    debug("i        = %f" % icv_i)
-    debug("d        = %f" % icv_d)
-    debug("s        = %f" % icv_s)
-    debug("db       = %f" % icv_db)
-    debug("xb       = %f" % icv_xb)
-    debug("sd       = %f" % icv_sd)
-    debug("sdbw     = %f" % icv_sdbw)
+    infor("rmsstd   = %f" % icv_rmsstd)
+    infor("rs       = %f" % icv_rs)
+    infor("gamma    = %f" % icv_gamma)
+    infor("ch       = %f" % icv_ch)
+    infor("i        = %f" % icv_i)
+    infor("d        = %f" % icv_d)
+    infor("s        = %f" % icv_s)
+    infor("db       = %f" % icv_db)
+    infor("xb       = %f" % icv_xb)
+    infor("sd       = %f" % icv_sd)
+    infor("sdbw     = %f" % icv_sdbw)
+
+
+## if col. 0 is not id, set noid=True
+def init_dataset(path, noid=False):
+    clusters = [[]]
+    source = []
+    header = ""
+    ids = 0
+    beg = 0 if noid else 1
+    with open(path, "rt") as f:
+        header = f.readline()[:-1]
+        for item in f:
+            tmp = item[:-1]
+            tmps = tmp.split(",")
+            tmpl = []
+            for i in tmps[beg:-1]:
+                x = float(i)
+                tmpl.append(x)
+            id = int(tmps[-1])
+            if ids < id:
+                clusters.extend([[]] * (id-ids))
+                ids = id
+            clusters[id].append(tmpl)
+    infor("load clusters [%s], header= [%s]" % (path, header))
+    if noid:
+        infor("id of csvfile is not ignnored.")
+    else:
+        infor("id of csvfile is ignnored.")
+    infor
+    return clusters
 
 
 if __name__ == "__main__":
-    clusters = [[[31,32,33,34,31,32,33],[32,33,34,31,31,32,31],[33,34,33,31,32,33,32]],
-                [[19,19,19,18,19,18,17],[18,19,18,17,16,18,19],[17,18,16,16,18,19,17]],
-                [[46,45,44,44,45,46,45],[44,44,43,45,46,44,45],[47,45,45,45,45,45,44]]]
+    if len(sys.argv) != 2:
+        print "invalid parameter"
+        exit()
+    clusters = init_dataset(sys.argv[1])
     icvm(clusters)
