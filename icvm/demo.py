@@ -19,12 +19,30 @@ def xls2csv_demo():
 
 
 def icvm_demo():
+    csv_name = "bankloan.csv"
+    clusters = init_dataset(csv_name)
+    icvm(clusters)
+
+
+def icvm_demo2():
     csv_base_name = "bankloan.csv"
     for i in range(2, 10):
         csv_name = csv_base_name[:-4] + str(i) + ".csv"
         clusters = init_dataset(csv_name)
-        icvm(clusters, "icvm-result.csv")
+        icvm(clusters, rstpath="icvm-result.csv")
+
+
+def icvm_demo3():
+    csv_base_name = "bankloan.csv"
+    for i in range(2, 10):
+        csv_name = csv_base_name[:-4] + str(i) + ".csv"
+        clusters = init_dataset(csv_name)
+        ## you can choose which algorithm that you wanna
+        func = ['rmsstd','rs','gamma','ch','i','d','s','db','xb','sd','sdbw']
+        icvm(clusters, rstpath="icvm-result.csv", func=func)
 
 
 # xls2csv_demo()
 # icvm_demo()
+# icvm_demo2()
+# icvm_demo3()
