@@ -38,6 +38,12 @@ def error(info):
     if ERROR: print "[ERROR] <%s>" % es[-2][2], info
     exit()
 
+def toupper(x):
+    return [i.upper() for i in x if isinstance(i, str)]
+
+def intersec(x, y):
+    return list((set(x).union(set(y))) ^ (set(x)^set(y)))
+
 ################################################################################
 ## mathematical functions
 def dot_product(x):
@@ -605,32 +611,31 @@ def do_sdbw(clusters):
 
 ## make Internal Clustering Validation Measures
 ## if want to save result onto a certain path, set rstpath
-def icvm(clusters, rstpath=None):
+## you can specify which function do you wanna
+## for example: func=["rs","ch","sd"]
+def icvm(clusters, rstpath=None, func=None):
     global nr_clusters
-    do_init(clusters)
-    icv_rmsstd  = do_rmsstd(clusters)
-    icv_rs      = do_rs(clusters)
-    icv_gamma   = do_gamma(clusters)
-    icv_ch      = do_ch(clusters)
-    icv_i       = do_i(clusters)
-    icv_d       = do_d(clusters)
-    icv_s       = do_s(clusters)
-    icv_db      = do_db(clusters)
-    icv_xb      = do_xb(clusters)
-    icv_sd      = do_sd(clusters)
-    icv_sdbw    = do_sdbw(clusters)
+    FUNC = ['RMSSTD','RS','GAMMA','CH','I','D','S','DB','XB','SD','SDBW']
+    mat = "{:<10}{:}"
+    icvs = {"RMSSTD":[0.0, do_rmsstd],
+           "RS":    [0.0, do_rs],
+           "GAMMA": [0.0, do_gamma],
+           "CH":    [0.0, do_ch],
+           "I":     [0.0, do_i],
+           "D":     [0.0, do_d],
+           "S":     [0.0, do_s],
+           "DB":    [0.0, do_db],
+           "XB":    [0.0, do_xb],
+           "SD":    [0.0, do_sd],
+           "SDBW":  [0.0, do_sdbw]}
 
-    infor("rmsstd   = %f" % icv_rmsstd)
-    infor("rs       = %f" % icv_rs)
-    infor("gamma    = %f" % icv_gamma)
-    infor("ch       = %f" % icv_ch)
-    infor("i        = %f" % icv_i)
-    infor("d        = %f" % icv_d)
-    infor("s        = %f" % icv_s)
-    infor("db       = %f" % icv_db)
-    infor("xb       = %f" % icv_xb)
-    infor("sd       = %f" % icv_sd)
-    infor("sdbw     = %f" % icv_sdbw)
+    dofunc = FUNC if func == None else intersec(toupper(func), FUNC)
+    if dofunc == []: error("func error, no function be specified.")
+    do_init(clusters)
+    for i in dofunc:
+        icv = icvs.get(i)
+        icv[0] = icv[1](clusters)
+        infor(mat.format(i, icv[0]))
 
     now = time.time()
     result_rpt = "icvm-%s.csv" % str(now) if rstpath == None else rstpath
@@ -638,18 +643,10 @@ def icvm(clusters, rstpath=None):
     with open(result_rpt, "at") as f:
         if not exist_flag:
             f.write("NC,RMSSTD,RS,GAMMA,CH,I,D,S,DB,XB,SD,SDBW\n")
-        f.write(str(nr_clusters) + ",")
-        f.write(str(icv_rmsstd) + ",")
-        f.write(str(icv_rs) + ",")
-        f.write(str(icv_gamma) + ",")
-        f.write(str(icv_ch) + ",")
-        f.write(str(icv_i) + ",")
-        f.write(str(icv_d) + ",")
-        f.write(str(icv_s) + ",")
-        f.write(str(icv_db) + ",")
-        f.write(str(icv_xb) + ",")
-        f.write(str(icv_sd) + ",")
-        f.write(str(icv_sdbw) + "\n")
+        item = ""
+        for i in range(0, len(dofunc)):
+            item += str(icvs.get(dofunc[i])[0]) + ","
+        f.write(item[:-1] + "\n")
     infor("Completed! Report File is %s" % result_rpt)
 
 
@@ -688,4 +685,4 @@ if __name__ == "__main__":
         print "invalid parameter"
         exit()
     clusters = init_dataset(sys.argv[1])
-    icvm(clusters)
+    icvm(clusters, func=None)
