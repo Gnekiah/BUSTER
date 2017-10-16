@@ -643,7 +643,7 @@ def icvm(clusters, rstpath=None, func=None):
     with open(result_rpt, "at") as f:
         if not exist_flag:
             f.write("NC,RMSSTD,RS,GAMMA,CH,I,D,S,DB,XB,SD,SDBW\n")
-        item = ""
+        item = str(nr_clusters) + ","
         for i in range(0, len(dofunc)):
             item += str(icvs.get(dofunc[i])[0]) + ","
         f.write(item[:-1] + "\n")
