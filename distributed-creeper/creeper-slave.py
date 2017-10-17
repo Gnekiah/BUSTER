@@ -1,4 +1,11 @@
 #!/bin/python2.7
+# -*- coding: utf-8 -*-
+#
+# implementation of slave in distributed creeper
+#
+# external lib required: pymongo
+# @Xiong X. 2017/10/15
+
 from urllib2 import urlopen
 from traceback import extract_stack
 import re, time, sys
