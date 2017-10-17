@@ -1,7 +1,15 @@
 #!/bin/python2.7
+# -*- coding: utf-8 -*-
+#
+# implementation of master in distributed creeper
+#
+# external lib required: pymongo
+# @Xiong X. 2017/10/15
+
 from urllib2 import urlopen
 from traceback import extract_stack
-import re, time, sys
+from pymongo import MongoClient
+import re, time, sys, json
 import socket, threading
 
 ################################################################################
@@ -14,7 +22,7 @@ SLAVE_IP = [("127.0.0.1", SLAVE_DATA_PORT, SLAVE_CONSOLE_PORT),
             ]
 
 INFO = True
-DEBUG = True
+DEBUG = False
 WARNING = True
 ERROR = True
 
@@ -146,6 +154,7 @@ class master_requester_thread(threading.Thread):
 class master_writer_thread(threading.Thread):
     def __init__(self):
         self.data = list()
+        self.db = MongoClient().creeper
         threading.Thread.__init__(self)
 
     def dowrite(self):
@@ -155,12 +164,16 @@ class master_writer_thread(threading.Thread):
                 if len(m_data) == 0: break
                 self.data.append(m_data.pop(0))
             m_data_mutex.release()
-        f = open("data.data", "at")
         for i in self.data:
-            f.write(i + "\n")
-        f.close()
-            ####################################################################
-            ## PARSE DATA AND DO SAVE
+            try:
+                pdu = json.loads(i)
+                if type(pdu) != type(dict()):
+                    continue
+                self.db.vipinfo.insert_one(pdu)
+                info("[DataBase Insert] data len= %d" % str(len(pdu)))
+            except:
+                pass
+
 
     def run(self):
         while True:
