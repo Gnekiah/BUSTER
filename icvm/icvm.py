@@ -408,8 +408,11 @@ def _do_s_y(x, cnt, cls):
     for i in range(0, nr_clusters):
         if i == cnt:
             continue
+        tmp = 0.0
         for item in cls[i]:
-            ret = min(ret, scalar_distance(x, item) / nr_clobjs[i])
+            tmp += scalar_distance(x, item)
+        tmp /= nr_clobjs[i]
+        ret = min(ret, tmp)
     return ret
 
 
