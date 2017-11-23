@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=1024" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>FREAK - HOME</title>
+    
+    <meta name="description" content="Web开发项目" />
+    <meta name="author" content="Xiong X." />
+
+	<link rel="shortcut icon" href="img/favicon.png" />
+    <link rel="apple-touch-icon" href="img/favicon.png" />
+	
+    <link href="css/fonts.css" rel="stylesheet" />
+	<link href="css/bootstrap.min.css" rel="stylesheet" />  
+	<link href="css/bootstrap-responsive.min.css" rel="stylesheet" />  
+	<link href="css/adminlet.min.css" rel="stylesheet" />
+	<link href="css/wangEditor.min.css" rel="stylesheet" /> 
+	<link href="css/index/home.css" rel="stylesheet" />
+	<link href="css/index/home-list.css" rel="stylesheet" />
+	<link href="css/index/home-chat.css" rel="stylesheet" />
+	
+	<script src="js/jquery-3.2.1.min.js"></script>
+	<script src="js/bootstrap.min.js"></script>  
+	<script src="js/wangEditor.min.js"></script>
+	<script src="js/index/home.js"></script>	
+</head>
+
+<body class="impress-not-supported">
+<div class="fallback-message">
+    <p>Your browser <b>doesn't support the features required</b> by impress.js, so you are presented with a simplified version of this presentation.</p>
+    <p>For the best experience please use the latest <b>Chrome</b>, <b>Safari</b> or <b>Firefox</b> browser.</p>
+</div>
+
+<div id="impress">
+	<div id="list" class="step slide" data-x="0" data-y="0" data-z="0">
+		<div class="list-file-item" style="width:360px; left:50px; top:50px; position:absolute;" onclick="window.open('https://hashdog.com/brochure/#/slogan');">
+			<div class="item-img-container">
+				<img src="img/img-demo/3.png" style="width:360px; height:200px">
+			</div>
+				<label>Asynchronous JS 2009 演讲报告</label>
+		</div>
+		
+		<div class="list-file-item" style="width:360px; right:50px; top:50px; position:absolute;" onclick="window.open('http://aht.github.io/whatisgit/#/cover');">
+			<div class="item-img-container">
+				<img src="img/img-demo/2.png" style="width:360px; height:200px">
+			</div>
+				<label>ByteCode Manipulation</label>
+		</div>
+		
+		<div class="list-file-item" style="width:360px; left:50px; top:350px; position:absolute;">
+			<div class="item-img-container">
+			     <a href="#edit"><img src="img/img-demo/4.png" style="width:360px; height:200px"></a>
+			</div>
+		</div>
+    </div>
+
+	<div id="comment" class="step slide" data-x="2000" data-y="0" data-z="0">
+		<div class="box-header with-border">
+			<h2 class="box-title">即时通讯</h2>
+		</div>
+		
+		<div class="box-body">
+			<div id="convo">  
+				<ul class="chat-thread">
+				<li>弟，工作搞定了没</li>
+				<li>其实工作不用急的，有技术，去哪里都好找工作</li>
+				<li>没错当初我室友也是这么说的，现在都不知在哪个地铁站拉小提琴，『手动滑稽』</li>
+				<li>66666....这叫为艺术放弃了原本的一切</li>
+				<li>我又要给你介绍我的创意了，有一个很好解决问题的操作——集装箱</li>
+				<li>啥子集装箱</li>
+				<li>一个标准集装箱式屋售价在1k-2k之间，内部床、桌子等都给固定好的，当然也可以选择DIY。然后一个拖车大约4w，可以先不考虑拖车，把集装箱安置到比如滨江路下面，基本可以避免被查，或者贷款买个拖车，就可以随时把家开去想去的地方</li>
+				<li>这样会不会搞了个大新闻</li>
+				<li>而且价格更便宜</li>
+				<li>然后被跤警带着了</li>
+				<li>骚年你不知道吗，建筑工地的师傅们都是住在集装箱内的</li>
+				<li>要不我们合伙干吧，我准备去工作5年后回来创业，你怎么打算</li>
+				</ul>
+			</div>
+		</div>
+  
+		<div class="box-footer">
+			<div class="input-group">
+			<input type="text" name="message" class="form-control">
+			<button type="button" class="btn btn-info btn-flat" onclick="send();">发送</button>
+			</div>
+		</div>
+    </div>
+	
+	<div id="trash" class="step slide" data-x="-2000" data-y="0" data-z="0">
+		<div class="list-file-item" style="width:360px; left:50px; top:50px; position:absolute;" onclick="window.open('http://exequiel09.github.io/symposium-presentation/#/title');">
+			<div class="item-img-container">
+				<img src="img/img-demo/1.png" style="width:360px; height:200px">
+			</div>
+				<label>演讲稿 version-0.1</label>
+		</div>
+    </div>
+	
+	<div id="user" class="step slide" data-x="0" data-y="1500" data-z="0">
+		<div class="control-group">
+			<div class="controls input-prepend">
+				<span class="add-on"><i class="icon-user"></i>昵称</span>
+				<input class="span2 " id="inputIcon" type="text">
+			</div>
+		</div>
+    </div>
+	
+	<div id="edit" class="step slide" data-x="0" data-y="-1500" data-z="0">
+	    <div class="box-footer">
+            <div class="input-group">
+            <input id="edittitle" type="text" name="message" class="form-control">
+            <button type="button" class="btn btn-info btn-flat" onclick="save();">保存</button>
+            </div>
+        </div>
+		<div id="editor"></div>
+    </div>
+	
+	<div id="gift" class="step slide" data-x="-2000" data-y="-1500" data-z="0">
+		<br/><br/>
+		<p>Who has seen the wind?<br/>
+		&nbsp;&nbsp;Neither I nor you;<br/><br/>
+		But when the leaves hang trembling, <br/>
+		&nbsp;&nbsp;The wind is passing through. <br/><br/>
+		Who has seen the wind? <br/>
+		&nbsp;&nbsp;Neither you nor I; <br/><br/>
+		But when the trees bow down their heads, <br/>
+		&nbsp;&nbsp;The wind is passing by. <br/><br/>
+		——Christina Rossetti</p>
+    </div>
+
+</div>
+
+<div class="nav">
+	<a href="#user" class="btn btn-action btn-large menus" onmousemove="bigImg1(this)" onmouseout="normalImg1(this)"><i class="icon-user"></i></a><br/>
+	<a href="#list" class="btn btn-success btn-large menus" onmousemove="bigImg2(this)" onmouseout="normalImg2(this)"><i class="icon-list icon-white"></i></a><br/>
+	<a href="#comment" class="btn btn-info btn-large menus" onmousemove="bigImg3(this)" onmouseout="normalImg3(this)"><i class="icon-comment icon-white"></i></a><br/>
+	<a href="#edit" class="btn btn-primary btn-large menus" onmousemove="bigImg4(this)" onmouseout="normalImg4(this)"><i class="icon-edit icon-white"></i></a><br/>
+	<a href="#trash" class="btn btn-warning btn-large menus" onmousemove="bigImg5(this)" onmouseout="normalImg5(this)"><i class="icon-trash icon-white"></i></a><br/>
+	<a href="index.html" class="btn btn-danger btn-large menus" onmousemove="bigImg6(this)" onmouseout="normalImg6(this)"><i class="icon-off icon-white"></i></a><br/>
+	<a href="#gift" class="btn btn-inverse btn-large menus" onmousemove="bigImg7(this)" onmouseout="normalImg7(this)"><i class="icon-gift icon-white"></i></a><br/>
+</div>
+
+<script src="js/impress.js"></script>
+<script>
+	var E = window.wangEditor;
+	var editor2 = new E('#editor');
+	editor2.create();
+	
+	var div = document.getElementsByClassName("w-e-text-container");
+	div[0].style.minHeight = "640px";
+	
+	impress().init();
+	
+	function save() 
+	{
+	    var title = $("#edittitle").val();
+	    var text = editor2.txt.text();
+	    $.post("upload.do", 
+	    	{
+	    	  title:title,
+	    	  text:text
+	    	},
+	    	function(result) {
+	    		alert("success");
+	    	});
+	}
+</script>
+</body>
+</html>
