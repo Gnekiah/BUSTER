@@ -42,13 +42,41 @@ def load_digraph(filename):
 
 
 def dijkstra(symbo, graph, startpos):
-    print symbo
-    print graph
-
+    verts = symbo.values()
+    paths = [[symbo[startpos],0]]
+    verts.remove(symbo[startpos])
+    while verts:
+        currlen = sys.maxint
+        currpos = 0
+        currpath = None
+        for ps in paths:
+            for p in graph[ps[-2]]:
+                if p[0] not in verts:
+                    continue
+                if p[1]+ps[-1] < currlen:
+                    currlen = p[1]+ps[-1]
+                    currpos = p[0]
+                    currpath = ps
+        newpath = currpath[:-1]
+        newpath.extend([currpos, currlen])
+        paths.append(newpath)
+        verts.remove(currpos)
+    for ps in paths:
+        for i in range(0, len(ps)-1):
+            ps[i] = list(symbo.keys())[list(symbo.values()).index(ps[i])]
+    return paths
 
 
 if __name__ == "__main__":
     filename = "graph.txt"
-    startpos = "beijing"
+    startpos = "v0"
     symbo, graph = load_ungraph(filename)
-    dijkstra(symbo, graph, startpos)
+    paths = dijkstra(symbo, graph, startpos)
+    for ps in paths:
+        print  "%s => %s= %d \t\t" % (ps[0], ps[-2], ps[-1]),
+        s = ""
+        for i in ps[:-1]:
+            s += i+" -> "
+        print s[:-3]
+
+
