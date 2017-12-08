@@ -68,9 +68,11 @@ def dijkstra(symbo, graph, startpos):
 
 
 if __name__ == "__main__":
-    filename = "graph.txt"
-    startpos = "v0"
+    filename = "graph-city.txt"
+    startpos = "xian"
     symbo, graph = load_ungraph(filename)
+    print symbo
+    print graph
     paths = dijkstra(symbo, graph, startpos)
     for ps in paths:
         print  "%s => %s= %d \t\t" % (ps[0], ps[-2], ps[-1]),
